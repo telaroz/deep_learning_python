@@ -16,6 +16,8 @@ ocr_model_fast = ONNXPlateRecognizer("global-plates-mobile-vit-v2-model")
 detected_plates = []
 temp_file_path = "temp.jpg"
 
+YOLO(model="yolov8n.pt")
+
 for box in result[0].boxes:
             # Get bounding box coordinates
             xyxy = box.xyxy[0].cpu().numpy().astype(int) # [xmin, ymin, xmax, ymax]
