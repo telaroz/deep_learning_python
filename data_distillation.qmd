@@ -3,7 +3,7 @@ title: "Data distillation for Automatic License Plate Recognition System"
 format: html
 ---
 
-This file details to process to complete the data distillation used to train a detection Model with YOLO
+This file details to process to complete the data distillation used to train a detection Model with YOLO.
 
 # Dataset Overview
 
@@ -40,12 +40,3 @@ These were converted to the `YOLO` format: `(class_index, x_center, y_center, wi
 A `python` script was used to iterate through each original `.txt` annotation file. For each annotation, the script loaded the corresponding image to obtain its dimensions. It then calculated the center coordinates (`x_center`, `y_center`) for the bounding box, normalized all four coordinate values, and wrote the results back into the `.txt` file in the required `YOLO` format.
 
 Documentation about this can be found from Ultralytics, [here](https://docs.ultralytics.com/datasets/detect/#ultralytics-yolo-format). YOLO was trained originaly with the COCO dataset, so this is the format needed. 
-
-## Train/Validation Split
-
-The new corrected image and label pairs were shuffled and then split into training and validation sets. 80% of the data was allocated for training the model, and the remaining 20% was reserved for validation.
-
-After splitting:
-
--   **Training pairs:** 86
--   **Validation pairs:** 22
