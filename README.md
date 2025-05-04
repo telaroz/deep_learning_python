@@ -43,9 +43,13 @@ To detect the licence plates on an image follow these instructions:
 ```bash
 python script.py 
 ```
+
 2. Follow the prompts
+   
    2.1 Select Detection Model: The script will ask you to choose a detection model
+   
    2.2 Select OCR Model: Next, choose the OCR method
+   
    2.3.Enter Image Path: Finally, provide the path to the image you want to process
 
 ### Output
