@@ -9,9 +9,8 @@ output_label_dir = 'datasets/labels/unsplit'
 default_yolo_class_ID = 0
 
 
-#making sure target dir exists:
-
 list_label = glob.glob(os.path.join(img_dir,"*.txt")) #gather all txt 
+
 
 
 for txt_path in list_label:
@@ -38,8 +37,47 @@ for txt_path in list_label:
 
     yolo_labels = []
 
-    for idx, ln in enumerate(data):
-        bits = ln.split()
+
+#if os.path.isfile(img_path):
+    #process_
+
+    if not os.path.isfile(img_path):
+            print("Whoops no image for", txt_path)
+            err_count += 1
+            continue  
+    
+    try:
+        img = Image.open(img_path)
+        w, h = img.size #width and height , no need for channel 
+        img.close()
+    except Exception as e:
+        print(f"Error opening {img_path}: {e}")
+        err_count += 1
+        continue  # passe au label suivant
+
+        if w == 0 or h == 0:
+            print('error')
+            err_count += 1
+            continue
+
+
+    try:
+        data = open(txt_path).read().splitlines()
+
+    except Exception as e:
+        print("Err reading", txt_path, ":", e)
+        err_count += 1
+        continue
+
+    if len(data) == 0:
+        print("Empty labels in", txt_path, "- blank")
+        open(out_path, 'w').close()
+        conv_count += 1
+        continue
+
+
+    yolo_lines = []
+
 
         x_min = float(bits[1])
         y_min = float(bits[2])
@@ -53,6 +91,7 @@ for txt_path in list_label:
         y_center_norm = y_center / h
         w_norm = bw / w
         h_norm = bh / h
+
 
 yolo_labels.append(f"0 {x_center_norm:.6f} {y_center_norm:.6f} {w_norm:.6f} {h_norm:.6f}")
 
