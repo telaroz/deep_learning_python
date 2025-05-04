@@ -35,54 +35,33 @@ The dataset used was downloaded from this [repository](https://github.com/openal
 
 ## Model Training
 
-### YOLO Detector
+### YOLO model for image detection
 
-We used the `Ultralytics YOLOv8-n` model as the base architecture for our license plate detector. This is a small and fast version of YOLOv8, suitable for real-time applications. The model was fine-tuned on our custom license plate dataset.
+We used the `Ultralytics YOLOv11` models as the base architecture for our license plate detector. 
+The YOLO detection models were originaly trained on the COCO dataset. For details on datasets used, see the Dataset section. 
+
+We tried with multiple sizes of models, and finaly where able to train the biggest one (`x version`). The model was fine-tuned on our custom license plate dataset.
+
+The base code used for the training can be found in `train_yolo.py`. We used Google Colab, as we needed GPU resources and there it's already set to go. CUDA installation was also performed in all of our machines, but we saw faster results which did not crash that often in a Google Colab. 
 
 ### Hyperparameters
 
 After experimentation and tuning, the following hyperparameters yielded the best results for our training process:
 
 <!-- Fill in the actual values used during training -->
--   **Epochs:** 
--   **Warmup Epochs:** 
--   **Batch Size:** 
--   **IMG_SIZE:** 
--   **Learning Rate:** 
--   **Patience (Early Stopping):** 
--   **Weight Decay:** 
--   **Momentum:** 
-
-## Inference and OCR Pipeline
-
-<!-- 
-Describe the inference process here. 
-- How does the trained YOLO model take an input image/frame?
-- How is the detected bounding box cropped?
-- Which OCR engine/library was used (e.g., Tesseract, EasyOCR, PaddleOCR)?
-- How is the cropped image passed to the OCR engine?
-- How is the final recognized text obtained?
--->
-
-[Details about the inference process, how the detected plate images are passed to the OCR engine (e.g., EasyOCR, Tesseract), and how the final text is extracted would go here. You might include a small code snippet or a diagram if helpful.]
+-   **Epochs:** 100
+-   **Warmup Epochs:** 2
+-   **Batch Size:** 16
+-   **Learning Rate:** 0.001 (Initial one)
+-   **Patience (Early Stopping):** 10
+-   **Weight Decay:** 0.0005 (regularization to avoid overfitting) 
+-   **Momentum:** 0.937 (number seen to work well, optimizer momentum)
 
 ## Results
 
-After training the YOLOv8n model for 50 epochs (or specify your actual number) and exporting the `best-performing` weights (based on validation metrics), we evaluated its performance on the held-out validation set. We measured both the detection performance (Precision, Recall) and the end-to-end recognition accuracy, as well as the inference speed.
+- Training images (`train_batch0.jpg`, `train_batch1.jpg`, `train_batch2.jpg`) show successful detection of license plates.
 
-The key performance metrics are summarized in Table 1.
+- The model achieved accurate bounding box predictions for most test images.
 
-| Metric                   | Value             |
-|--------------------------|-------------------|
-| Precision                | [Your Value Here] |
-| Recall                   | [Your Value Here] |
-| Inference Speed (FPS)    | ~25 FPS           |
+After training the YOLO11 model we exported the `best-performing` weights and used it as a model for our plate-number detection workflow (models uploaded with lfs). Run `script.py` by following the instructions of the README in the repository to try the models. 
 
-
-**Precision** and **Recall** quantify the detector's ability to correctly identify license plates. Precision measures the proportion of detected bounding boxes that actually correspond to license plates, while Recall measures the proportion of actual license plates in the images that were successfully detected.
-
-**OCR Recognition Accuracy** reflects the percentage of correctly detected license plates for which the characters were accurately read by the integrated OCR engine.
-
-**Inference Speed** was benchmarked on an `NVIDIA RTX 2060` GPU. The pipeline demonstrated the capability to process input frames at approximately 25 frames per second (FPS), indicating suitability for real-time applications.
-
-These results suggest that our implemented pipeline achieves effective real-time detection and reliable text recognition under the conditions present in our validation dataset (e.g., standard lighting and viewing angles). Further testing on more diverse data would be needed to assess generalization.
