@@ -1,112 +1,113 @@
-import os
-import glob
-import re # For natural sorting
-
-# --- Configuration ---
-TARGET_DIR = 'eu' # The directory containing files to rename
-# --- End Configuration ---
-
-def natural_sort_key(s):
-    """
-    Key for natural sorting (e.g., 'image1', 'image2', 'image10').
-    Splits string into text and number parts.
-    """
-    return [int(text) if text.isdigit() else text.lower()
-            for text in re.split('([0-9]+)', s)]
-
-print(f"Scanning directory: {TARGET_DIR} for renaming to eu_XXX format.")
-
-# Find all image files (we'll use these to determine the order)
-image_files = glob.glob(os.path.join(TARGET_DIR, '*.jpg'))
-
-if not image_files:
-    print("No .jpg files found in the directory. Exiting.")
-    exit()
-
-# Extract base names (filename without extension)
-base_names = [os.path.splitext(os.path.basename(f))[0] for f in image_files]
-
-# Sort the base names naturally
-base_names.sort(key=natural_sort_key)
-
-print(f"Found {len(base_names)} base names to process.")
-print("Renaming order will be based on this sorted list:")
-for i, name in enumerate(base_names):
-     print(f"  {i+1}: {name}")
-print("-" * 20)
+import os, glob, re, sys, argparse, logging
 
 
-renamed_count = 0
-skipped_count = 0
-error_count = 0
-missing_txt_count = 0
 
-# --- Renaming Phase ---
-# We iterate through the sorted list and assign new sequential eu_XXX names
-for i, old_base in enumerate(base_names, 1):
-    new_base = f"eu_{i:03d}" # Format like eu_001, eu_002, ...
 
-    # Define old and new paths
-    old_img_path = os.path.join(TARGET_DIR, old_base + ".jpg")
-    old_txt_path = os.path.join(TARGET_DIR, old_base + ".txt")
-    new_img_path = os.path.join(TARGET_DIR, new_base + ".jpg")
-    new_txt_path = os.path.join(TARGET_DIR, new_base + ".txt")
+def sort_naturel(s): #creating a function to sort files 
 
-    # Skip if the file is already named correctly (unlikely in this full rename scenario, but safe)
-    if old_base == new_base:
-        print(f"Skipping: '{old_base}' is already in the target format.")
-        skipped_count += 1
-        continue
+    pattern = re.compile(r'([0-9]+)') #using re to compile any sequence of digits 
+    segment = pattern.split(s) #splitting the string to separate text from digit 
+    l1 = [] 
+    for i in segment: #looping through segment where we already separated the text from the digits with re 
+        if i.isdigit():
+            l1.append(int(i)) #if i only contains numbers, we execute this line, else we use i.lower() 
 
-    # --- Rename Image File ---
-    img_renamed = False
-    if os.path.exists(old_img_path):
-         # Safety Check: Ensure the target path doesn't already exist unexpectedly
-        if os.path.exists(new_img_path):
-            print(f"Error: Target image path '{new_img_path}' already exists! Cannot rename '{old_img_path}'. Skipping this pair.")
-            error_count += 1
-            continue # Skip both image and text for this pair
-        try:
-            os.rename(old_img_path, new_img_path)
-            print(f"Renamed IMG: '{old_base}.jpg' -> '{new_base}.jpg'")
-            renamed_count += 1
-            img_renamed = True
-        except OSError as e:
-            print(f"Error renaming image '{old_base}.jpg': {e}")
-            error_count += 1
-            continue # Skip text file if image rename failed
-    else:
-        # This shouldn't happen if we sourced from existing jpgs, but check anyway
-        print(f"Warning: Original image file '{old_img_path}' not found during renaming phase. Skipping.")
-        error_count += 1
-        continue
-
-    # --- Rename Text File (if it exists) ---
-    if os.path.exists(old_txt_path):
-        # Safety Check: Ensure the target path doesn't already exist unexpectedly
-        if os.path.exists(new_txt_path):
-             print(f"Error: Target text path '{new_txt_path}' already exists! Cannot rename '{old_txt_path}'.")
-             error_count += 1
-             # Note: The image might have been renamed successfully above
         else:
-            try:
-                os.rename(old_txt_path, new_txt_path)
-                print(f"Renamed TXT: '{old_base}.txt' -> '{new_base}.txt'")
-                # Don't double-increment renamed_count, just track success
-            except OSError as e:
-                print(f"Error renaming text file '{old_base}.txt': {e}")
-                error_count += 1
-    elif img_renamed: # Only report missing text if the image existed and was renamed
-        print(f"Info: Corresponding text file '{old_txt_path}' not found for image '{new_base}.jpg'.")
-        missing_txt_count += 1
+
+            l1.append(i.lower())
+                       
+    return l1
 
 
-print("-" * 20)
-print("Universal renaming finished.")
-print(f"Image/Text pairs processed for renaming: {len(base_names)}")
-print(f"Files renamed (counting images): {renamed_count}")
-print(f"Pairs skipped (already correct format): {skipped_count}")
-print(f"Missing corresponding .txt files: {missing_txt_count}")
-print(f"Errors encountered: {error_count}")
-print("-" * 20)
-print(f"All files in '{TARGET_DIR}' should now follow the 'eu_XXX' format.")
+def structured_data():
+    struct = argparse.ArgumentParser(description= 'rename any given jpg files into eu_XXX file')
+    struct.add_argument('TARGET_DIR', #targeted file 
+                         help = 'path file containing images and labels')
+    return struct.parse_args()
+
+
+def main(): #scan the file, reorder and rename the files 
+    args = structured_data()
+    target_dir = args.TARGET_DIR #retrieve value 
+
+    #setting up loggin instead of endless print spam....
+    logging.basicConfig(level=logging.INFO,format="%(levelname)s: %(message)s") 
+    logger = logging.getLogger(__name__)
+    logger.info(f" scanning dir: {target_dir}")
+
+    #get all jpg images from the file:
+    pattern = os.path.join(target_dir, '*.jpg')
+    img_files = glob.glob(pattern)
+    if not img_files:
+        logger.error('no .jpg images was found')
+        sys.exit(1) # if you run into the error message, type 1 to exit the program 
+
+    #remove path and any existing extension then natural sorting
+    base_names = [
+        os.path.splitext(os.path.basename(p))[0]
+        for p in img_files
+        ]
+   
+    base_names.sort(key=sort_naturel)
+    logger.info(f"{len(base_names)} file sorted and ready to get renamed.")
+
+
+
+    renamed_count, skipped_count, error_count, missing_txt_count = [0] * 4
+
+    
+    for idx, old_base in enumerate(base_names, start=1): #base_names is the sorted list
+                                                         #old_base is the old name
+        new_base = f"eu_{idx:03d}" #building the new base with 3 being the number of 0 we want, d is for decimal int.
+        old_jpg = os.path.join(target_dir, old_base + '.jpg')
+
+
+        #creating an if statement in case we already have the right format:
+        if old_base == new_base:
+            logger.info(f"skip: old_base is already in the righht format")
+            skipped +=1
+            continue
+
+        try:
+            new_jpg_name = os.path.join(target_dir, new_base + '.jpg')
+            if os.path.exists(new_jpg_name):
+                raise FileExistsError(f"{new_jpg_name} exists, cannot overwrite.")
+            os.rename(old_jpg, new_jpg_name)
+            logger.info(f"IMG: {old_base}.jpg → {new_base}.jpg")
+            rename += 1           
+            img_ok = True
+        except Exception as e:
+            logger.error(f"Couldn't rename image {old_base}: {e}")
+            errors += 1
+            img_ok = False
+
+
+        if img_ok:
+            old_txt = os.path.join(target_dir, old_base + '.txt')
+            new_txt = os.path.join(target_dir, new_base + '.txt')
+            if os.path.exists(old_txt):
+                try:
+                    if os.path.exists(new_txt):
+                        raise FileExistsError(f"{new_txt} exists, skipping text.")
+                    os.rename(old_txt, new_txt)
+                    logger.info(f" TXT: {old_base}.txt → {new_base}.txt")
+                except Exception as e:
+                    logger.error(f"Couldn't rename text {old_base}: {e}")
+                    errors += 1
+            else:
+                logger.warning(f"No .txt for {old_base}, skipping text.")
+                missing_text += 1
+
+
+
+    logger.info("Rename Summary ")
+    logger.info(f"Images renamed: {rename}")
+    logger.info(f"Skipped:        {skipped}")
+    logger.info(f"Errors:         {errors}")
+
+if __name__ == "__main__":
+    main()
+
+
+
+
