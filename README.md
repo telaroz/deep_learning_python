@@ -36,7 +36,7 @@ pip install -r requirements.txt
 ```
 
 ## How to run the project
-To detect the licence plates on an image follow these instructions:
+To detect the License plates on an image follow these instructions:
 
 1. Run the script
    
@@ -50,7 +50,7 @@ python script.py
    
    2.2 Select OCR Model: Next, choose the OCR method
    
-   2.3.Enter Image Path: Finally, provide the path to the image you want to process
+   2.3 Enter Image Path: Finally, provide the path to the image you want to process
 
 ### Output
 - The detected license plate text and the confidence score for the plate detection will be printed.
