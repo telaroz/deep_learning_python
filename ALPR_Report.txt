@@ -1,0 +1,40 @@
+
+Automatic License Plate Recognition (ALPR) System for Smart Parking Access
+=========================================================================
+
+Objective:
+----------
+The project aims to develop an Automatic License Plate Recognition (ALPR) system using a YOLOv8 object detection model to detect vehicle license plates. This system can be applied in smart parking systems for automatic vehicle identification and access control.
+
+Project Pipeline:
+-----------------
+1. **Data Collection**:
+   - A labeled dataset of European-style vehicle images with annotated license plates was used.
+   - Each image contains bounding boxes around license plates, formatted for YOLO object detection.
+
+2. **Data Preparation**:
+   - Images were annotated using bounding boxes and converted into the YOLOv8 format.
+   - Training and validation datasets were split and structured in folders.
+
+3. **Model Training**:
+   - The YOLOv8 architecture from Ultralytics was used for training.
+   - Training was done using a custom configuration file and pre-trained weights.
+   - Epochs, batch size, and image resolution were tuned to optimize accuracy.
+   - Loss curves were monitored to evaluate training and validation performance.
+
+4. **Results**:
+   - Training images (`train_batch0.jpg`, `train_batch1.jpg`, `train_batch2.jpg`) show successful detection of license plates.
+   - The model achieved stable convergence and accurate bounding box predictions for most test images.
+
+5. **Model Testing and Evaluation**:
+   - Detection was performed on new images (e.g., `image1.jpg`) for real-world validation.
+   - Detected license plates were to be passed through an OCR module (Tesseract) to extract alphanumeric characters.
+
+6. **Next Steps**:
+   - Integrate the YOLO model with Tesseract OCR to extract text from predicted bounding boxes.
+   - Improve accuracy by enhancing image preprocessing (e.g., binarization, thresholding).
+   - Deploy the model on edge devices or cloud for real-time ALPR in smart parking systems.
+
+Conclusion:
+-----------
+The YOLOv8 model was successfully trained to detect vehicle license plates with high accuracy. The next phase involves integrating OCR and deploying the system in practical smart parking scenarios.
