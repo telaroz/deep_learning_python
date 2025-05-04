@@ -36,7 +36,7 @@ pip install -r requirements.txt
 ```
 
 ## How to run the project
-To detect the License plates on an image follow these instructions:
+To detect the license plates on an image follow these instructions:
 
 1. Run the script
    
