@@ -29,7 +29,11 @@ print("\nSelect OCR Model: \n 1: ONNXPlateRecognizer (Fast Plate OCR) \n 2: Pyte
 
 ocr_model_choice = int(input("Enter choice (1, 2, or 3): "))
 
-image_path = "image1.jpg"
+image_path = input("Enter which image in the project directory you want to detect Plates from: ")
+if not os.path.exists(image_path):
+    print(f"Error: File not found at '{image_path}'. Please check the path and filename.")
+    image_path = input("Try entering the path again: ")
+
 img = cv2.imread(image_path)
 result = model.predict(img)
 
@@ -80,3 +84,7 @@ for box in result[0].boxes:
     cv2.putText(img, label_fast, (xmin, ymin - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2) # Red text
 
 cv2.imwrite("output_annotated_image.jpg", img)
+
+for i, plate_info in enumerate(detected_plates):
+    plate_number = plate_info['OCR_result'] if plate_info['OCR_result'] else "[OCR Failed]"
+    print(f"Plate {i + 1}: {plate_number} (Confidence of the plate detection: {plate_info['confidence']:.2f})")
